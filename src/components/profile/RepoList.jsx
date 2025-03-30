@@ -4,7 +4,7 @@ import Navbar from '../dashboard/Navbar';
 import { ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-const GitHubDashboard = () => {
+const RepoListViewer = () => {
   const [userProfile, setUserProfile] = useState(null);
   const [userRepos, setUserRepos] = useState([]);
   const [filteredRepos, setFilteredRepos] = useState([]);
@@ -40,6 +40,28 @@ const GitHubDashboard = () => {
     }
   }, []);
 
+   // Update filtered repos when sort or language filter changes
+   useEffect(() => {
+    let result = [...userRepos];
+    
+    // Filter by language
+    if (filterLanguage) {
+      result = result.filter(repo => repo.language === filterLanguage);
+    }
+    
+    // Sort 
+    result.sort((a, b) => {
+      if (sortBy === 'stars') return b.stars - a.stars;
+      if (sortBy === 'name') return a.name.localeCompare(b.name);
+      // Default: sort by updated
+      return new Date(b.updated_at) - new Date(a.updated_at);
+    });
+    
+    setFilteredRepos(result);
+    setCurrentPage(1);
+  }, [sortBy, filterLanguage, userRepos]);
+
+
   // Pagination logic
   const indexOfLastRepo = currentPage * reposPerPage;
   const indexOfFirstRepo = indexOfLastRepo - reposPerPage;
@@ -61,27 +83,7 @@ const GitHubDashboard = () => {
     );
   }
 
-  // Update filtered repos when sort or language filter changes
-  useEffect(() => {
-    let result = [...userRepos];
-    
-    // Filter by language
-    if (filterLanguage) {
-      result = result.filter(repo => repo.language === filterLanguage);
-    }
-    
-    // Sort 
-    result.sort((a, b) => {
-      if (sortBy === 'stars') return b.stars - a.stars;
-      if (sortBy === 'name') return a.name.localeCompare(b.name);
-      // Default: sort by updated
-      return new Date(b.updated_at) - new Date(a.updated_at);
-    });
-    
-    setFilteredRepos(result);
-    setCurrentPage(1);
-  }, [sortBy, filterLanguage, userRepos]);
-
+ 
  
 
   // Get unique languages
@@ -273,4 +275,4 @@ const GitHubDashboard = () => {
   );
 };
 
-export default GitHubDashboard;
+export default RepoListViewer;
